@@ -4,6 +4,20 @@ import React, { FormEvent, useState } from "react";
 import { roastUserAction } from "@/actions/action";
 import Image from "next/image";
 import { Flame, Star, Zap } from "lucide-react";
+import html2canvas from "html2canvas";
+
+const badgeColors = [
+  "bg-red-500/70",
+  "bg-green-500/70",
+  "bg-yellow-500/70",
+  "bg-purple-500/70",
+  "bg-pink-500/70",
+  "bg-orange-500/70",
+  "bg-teal-500/70",
+  "bg-indigo-500/70",
+  "bg-cyan-500/70",
+  "bg-rose-500/70"
+];
 
 const HomePage = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -19,7 +33,7 @@ const HomePage = () => {
       stars: number;
       location: any;
     };
-    roast: { intro?: string; roast?: string; spiceLabel?: string; roastTagline?: string; spiceLevel: number } | undefined;
+    roast: { intro?: string; roast?: string; spiceLabel?: string; roastTagline?: string; spiceLevel: number, badges?: string[] } | undefined;
     devTraits: {
       commitEnergy: number;
       starPower: number;
@@ -48,8 +62,29 @@ const HomePage = () => {
     }
   };
 
+  const htmlToPng = async () => {
+    const node = document.getElementById('roast-card');
+
+    console.log(node);
+    if (node) {
+      const browser = await puppeteer.launch();
+      const page = await browser.newPage();
+      await page.goto(url);
+
+      await page.screenshot({
+        path: 'page-screenshot.jpg',
+        type: 'jpeg',
+        quality: 90, // Set image quality
+      });
+
+      await browser.close();
+    } else {
+      console.error("Element with id 'roast-card' not found.");
+    }
+  }
+
   return (
-    <main className="flex flex-col items-center justify-start px-6 py-12 bg-background text-foreground">
+    <main className="flex flex-col items-center justify-start p-3 md:px-6 py-12 bg-background text-foreground">
       {/* Intro */}
       <section className="max-w-2xl text-center my-10">
         <span className='flex items-center justify-center gap-1'>
@@ -103,12 +138,14 @@ const HomePage = () => {
               <h3 className="text-xl font-semibold text-center text-white">Your Roast</h3>
 
 
-              <div className="w-full max-w-md mx-auto rounded-3xl p-6 
-  bg-gradient-to-br from-[#2c1a17] via-[#3b1d1a] to-[#1c1c1c] 
-  shadow-[0_4px_60px_rgba(255,87,34,0.2)] 
-  border border-[#ff5722]/20 
-  backdrop-blur-xl 
-  space-y-6">
+              <div className="w-full max-w-md mx-auto rounded-3xl p-3 sm:p-6
+                              bg-gradient-to-br from-[#2c1a17] via-[#3b1d1a] to-[#1c1c1c] 
+                              shadow-[0_4px_60px_rgba(255,87,34,0.2)] 
+                              border border-[#ff5722]/20 
+                              backdrop-blur-xl 
+                              space-y-6"
+                id="roast-card"
+              >
 
                 {/* Header */}
                 <div className="flex items-center justify-between">
@@ -122,23 +159,17 @@ const HomePage = () => {
                   </div>
                 </div>
 
-                {/* Profile Section */}
-                <div className="relative flex flex-col items-center text-center bg-white/5 backdrop-blur-sm rounded-2xl p-5 shadow-inner border border-white/10">
-                  <div className="relative -top-12">
-                    <div className="w-28 h-28 rounded-full border-4 border-[#f97316] overflow-hidden shadow-lg">
-                      <Image
-                        src={data?.user?.avatar_url || "/placeholder.png"}
-                        alt="profile"
-                        width={112}
-                        height={112}
-                        className="object-cover w-full h-full"
-                      />
-                    </div>
-                  </div>
-                  <div className="mt-[-2rem] mb-2">
-                    <h2 className="text-2xl font-extrabold text-white">@{data?.user?.login}</h2>
-                  </div>
-                  <div className="flex justify-center gap-8 mt-3">
+                <div className="w-full bg-white/5 backdrop-blur-sm rounded-2xl p-2 shadow-inner border border-white/10">
+                  <Image
+                    src={data?.user?.avatar_url || "/placeholder.png"}
+                    alt="profile"
+                    width={170}
+                    height={170}
+                    className="object-cover mx-auto rounded-full border-4 border-[#f97316]"
+                  />
+
+                  <h2 className="text-xl text-center font-extrabold text-white mt-2">@{data?.user?.login}</h2>
+                  <div className="flex justify-center gap-8 mt-1">
                     <div className="flex flex-col items-center">
                       <p className="text-xs text-gray-400">Followers</p>
                       <p className="text-xl font-bold text-[#facc15]">{data?.user?.followers}</p>
@@ -161,27 +192,30 @@ const HomePage = () => {
                 <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 
                 {/* Stats & Spice */}
-                <div className="flex items-center justify-between bg-white/5 p-4 rounded-2xl shadow-inner border border-white/10">
+                <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-2 bg-white/5 p-4 rounded-2xl shadow-inner border border-white/10">
 
                   {/* Dev Traits */}
                   <div className="space-y-3 text-sm text-white">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-[#facc15]/20 rounded-full">
-                        <Zap className="w-5 h-5 text-[#facc15]" />
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-400">Commit Energy</p>
-                        <p className="font-semibold">{data?.devTraits.commitEnergy}</p>
-                      </div>
-                    </div>
+                    <div className="w-full flex flex-col gap-2">
 
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-[#facc15]/20 rounded-full">
-                        <Star className="w-5 h-5 text-[#facc15]" />
+                      <div className="flex items-center gap-3 p-2 rounded-lg border border-[#facc15] bg-[#facc151b]">
+                        <div className="p-2 bg-[#facc15]/20 rounded-full">
+                          <Zap className="w-5 h-5 text-[#facc15]" />
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-400">Commit Energy</p>
+                          <p className="font-semibold">{data?.devTraits.commitEnergy}</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-xs text-gray-400">Star Power</p>
-                        <p className="font-semibold">{data?.devTraits.starPower}</p>
+
+                      <div className="flex items-center gap-3 p-2 rounded-lg border border-[#facc15] bg-[#facc151b]">
+                        <div className="p-2 bg-[#facc15]/20 rounded-full">
+                          <Star className="w-5 h-5 text-[#facc15]" />
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-400">Star Power</p>
+                          <p className="font-semibold">{data?.devTraits.starPower}</p>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -201,14 +235,30 @@ const HomePage = () => {
                   </div>
                 </div>
 
-                <div className="flex justify-between items-center text-xs text-white/70 border-t border-white/10 pt-3 px-1">
+                {/* Divider */}
+                <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+
+                <div className="w-full p-2 rounded-lg border border-[#facc15] bg-[#facc151b] flex items-center justify-center flex-wrap gap-2">
+                  {
+                    data?.roast?.badges?.map((badge: string, index: number) => {
+                      const colorClass = badgeColors[index % badgeColors.length];
+                      return (
+                        <span key={index} className={`p-1 px-2 rounded-md text-xs font-normal text-white ${colorClass}`}>
+                          {badge}
+                        </span>
+                      );
+                    })
+                  }
+                </div>
+
+                <div className="flex justify-between flex-wrap items-center text-xs text-white/70 border-t border-white/10 pt-3 px-1">
                   <span>Card No. #{"00000"}</span>
                   <span className="text-green-400">#GithubRoast</span>
                   <span className="italic">@NikhilsaiAnkil1</span>
                 </div>
               </div>
 
-
+              <button onClick={htmlToPng} className="cursor-pointer">Download card</button>
             </>
           )
         )}

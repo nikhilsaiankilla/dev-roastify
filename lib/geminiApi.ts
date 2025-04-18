@@ -93,6 +93,7 @@ export async function geminiRoastUser(data: any) {
       - "You’ve got fewer stars than *The Matrix Reloaded* has plot twists. At least you’re consistent with confusion."
       - "You’ve got fewer stars than *Justice League* in its first cut. But hey, *Snyder Cut* coming soon?"
       - "Stars? Less than *The Last Jedi*. You tried, but you didn’t quite nail it."
+      
 
     🎮 **Location-based Humor**:
     - If **location** is available: 
@@ -106,6 +107,39 @@ export async function geminiRoastUser(data: any) {
       - "Your location’s like your repo history — *incomplete*, and we’re still waiting for the next big reveal."
       - "You’ve got no location? You’re the *Doctor Strange* of GitHub, hopping across dimensions without telling us where you are."
 
+      **Personalized Humor Based on User Data**:
+    - **No Topics**: 
+      - "No topics on your repo? *The Room* of GitHub — nobody really knows what happened, but it’s kind of a legend."
+      - "No topics? Did you just leave it as an Easter egg for us to *discover*? We’ll pretend we understand."
+    - **Missing Info**: 
+      - "You’ve got ${user.public_repos} repos and ${user.followers} followers? At least you’re good at being a ghost on GitHub."
+      - "With ${user.followers} followers, you’re like *The Invisible Man* of GitHub. Except, no one really wants to see you."
+    - **Low Stars**: 
+      - "You’ve got fewer stars than *Hogwarts* at night, but at least you’re part of the wizarding world… right?"
+      - "You’ve got fewer stars than *Indiana Jones and the Kingdom of the Crystal Skull* — people talk about it, but nobody gets why it exists."
+    - **Username Uninspired**: 
+      - "Your username ${user.login}? You sound like a *Matrix* extra who forgot their lines."
+      - "You’re ${user.login}? Are you secretly a *Stranger Things* character hiding from the Demogorgon?"
+
+    🏷️ **Badge Instructions**:
+    In addition to the roast, generate a \`badges\` array with up to **4 - 5 short, roast-style** strings based on the user's GitHub behavior. These are sarcastic, spicy, meme-worthy titles — like mini awards for underwhelming habits. Keep them short (1–2 words) and spicy.
+
+    Only assign badges if the user's data supports it — do not generate random ones.
+
+    Examples:
+    - "Commit Ghost" — commits rarely or not at all
+    - "Starless" — has few or zero stars
+    - "Bio Blank" — has no bio
+    - "Readme Rookie" — missing or weak README
+    - "Fork Lord" — mostly forks, no original work
+    - "404 Dev" — profile missing key info (bio, location, etc)
+    - "Push Dodger" — last push was ages ago
+    - "HelloWorld Pro" — only beginner-level repos
+    - "Syntax Sorcerer" — strange or cryptic commit messages
+    - "Snack Committer" — commits once every snack break
+    - "Theme Switcher" — cares more about themes than code
+    - "WIP Warrior" — lots of unfinished/inactive projects
+    
     📌 Format your output strictly in **JSON** with these keys:
     1. **intro**: A short, punchy intro referencing the user’s GitHub stats (string).
     2. **roast**: A spicy roast of 2-4 lines, roasting their activity, commit messages, repos, or bio (string).
@@ -116,6 +150,7 @@ export async function geminiRoastUser(data: any) {
        - 61–80: "Hot"
        - 81–100: "Extra Spicy"
     5. **roastTagline**: A witty, meme-worthy tagline ending the roast (string).
+    6. **badges**: An array of up to 4 to 5 short badge strings (string[])
 
     Output Example (strict JSON):
 
@@ -125,6 +160,7 @@ export async function geminiRoastUser(data: any) {
       "spiceLevel": 85,
       "spiceLabel": "Extra Spicy",
       "roastTagline": "Bringing the heat like a production server crash on Friday night."
+      "badges": ["Commit Ghost", "Bio Blank", "Snack Committer"]
     }
 
     🔥 **Personalized Humor Based on User Data**:
