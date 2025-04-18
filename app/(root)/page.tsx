@@ -1,103 +1,149 @@
+"use client";
+
+import React, { FormEvent, useState } from "react";
+import { roastUserAction } from "@/actions/action";
 import Image from "next/image";
 
-export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+const HomePage = () => {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  interface RoastData {
+    user: {
+      login: any;
+      name: any;
+      bio: any;
+      avatar_url: any;
+      public_repos: any;
+      followers: any;
+      following: any;
+      stars: number;
+      location: any;
+    };
+    roast: string | undefined;
+    devTraits: {
+      commitEnergy: number;
+      starPower: number;
+    };
+  }
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+  const [data, setData] = useState<RoastData | null>(null);
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    try {
+      setIsLoading(true);
+
+      const formData = new FormData(e.currentTarget);
+      const res = await roastUserAction(formData);
+
+      if (!res?.success) {
+        return console.log(res);
+      }
+      
+      setData(res?.data)
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <main className="flex flex-col items-center justify-start px-6 py-12 bg-background text-foreground">
+      {/* Intro */}
+      <section className="max-w-2xl text-center my-10">
+        <span className='flex items-center justify-center gap-1'>
+          <Image src='/bread.png' alt="logo" width={55} height={55} />
+          <h1 className="text-3xl md:text-5xl font-bold tracking-wide text-white">
+            DevRoastify
+          </h1>
+        </span>
+        <p className="text-sm md:text-lg text-gray-300 mt-5">
+          Drop your GitHub username and get a roast card that'll burn brighter than your last deploy failure.
+        </p>
+      </section>
+
+      {/* Privacy Note */}
+      <section className="max-w-md text-center text-sm text-gray-400 mb-8">
+        <p>
+          We only store your GitHub username and the roast card — nothing else. No stalky analytics, no creepy data mining. Just roasts, pure and spicy.
+        </p>
+      </section>
+
+      {/* Input + Roast Display */}
+
+      <form
+        className="w-full max-w-md flex flex-col md:flex-row items-center gap-3"
+        onSubmit={handleSubmit}
+      >
+        <input
+          type="text"
+          name="username"
+          placeholder="Enter your GitHub username"
+          className="w-full text-sm placeholder:text-sm bg-[#333333] text-white px-6 py-4 rounded-full focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+        />
+        <button
+          type="submit"
+          className="w-full md:w-fit whitespace-nowrap cursor-pointer flex items-center justify-center gap-2 text-sm font-medium text-white bg-[#FF5733] hover:bg-[#FFB300] transition-all duration-200 ease-in-out rounded-full shadow-lg hover:scale-105 active:scale-95 px-6 py-4"
         >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+          {isLoading ? <><Image src='/bread.png' alt="logo" width={25} height={25} className="animate-spin-slow"/> roasting...</> : "Get Roast"}
+        </button>
+      </form>
+
+      <section className="w-full mt-10">
+        {
+          isLoading
+            ?
+            <div className="mx-auto">
+              <Image src='/bread.png' alt="logo" width={300} height={300} className="mx-auto animate-pulse" />
+              <h1 className="text-center mt-5">roasting your github</h1>
+            </div>
+            :
+            data &&
+
+            <>
+              <h3 className="text-xl font-semibold text-center">roast title</h3>
+              <div className="w-full max-w-sm mx-auto rounded-3xl border-10 border-[#FF5733] p-4 text-white mt-4">
+                <div className="w-full flex items-center justify-between">
+                  <span className='flex items-center justify-center gap-1'>
+                    <Image src='/bread.png' alt="logo" width={30} height={30} />
+                    <h1 className="text-sm font-normal tracking-wide text-white">
+                      DevRoastify
+                    </h1>
+                  </span>
+
+                  <span className="px-3 py-0.5 font-semibold bg-blue-500 rounded-md text-sm">Rare</span>
+                </div>
+                <div className="w-full flex items-center justify-between">
+                  <div>
+                    <span className="text-xs text-center">Followers</span>
+                    <h1 className="text-center font-bold text-3xl">{data?.user.followers}</h1>
+                  </div>
+                  <div className="rounded-full border-4 border-[#FF5733] mt-5">
+                    <Image
+                      src={data?.user?.avatar_url || '/bread_logo.png'}
+                      alt={data?.user.login}
+                      width={150}
+                      height={150}
+                      className="rounded-full border-4 border-white"
+                    />
+                  </div>
+                  <div>
+                    <span className="text-xs text-center">Following</span>
+                    <h1 className="text-center font-bold text-3xl">{data?.user.following}</h1>
+                  </div>
+                </div>
+                <h2 className="text-center text-sm font-normal mt-1">@{data?.user?.login}</h2>
+
+                <div className="w-full h-0.5 mt-2 bg-gradient-to-r from-transparent via-[#FF5733] to-transparent" />
+
+              </div>
+            </>
+        }
+      </section>
+
+
+    </main>
   );
-}
+};
+
+export default HomePage;
