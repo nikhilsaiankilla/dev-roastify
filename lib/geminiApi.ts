@@ -2,11 +2,11 @@ import { GoogleGenAI } from "@google/genai";
 
 const ai = new GoogleGenAI({ apiKey: "AIzaSyAl4xo95gXBz7uqKIoJHuujBPxbSZzmpGw" });
 
-export async function geminiRoastUser(data: any) {
+export async function geminiRoastUser(data: RoastUserInput) {
   const { user, recentRepo, lastPushDate } = data;
 
   // Format the lastPushDate in dd/mm/yyyy format
-  const formattedDate = new Date(lastPushDate).toLocaleDateString('en-GB');
+  const formattedDate = lastPushDate ? new Date(lastPushDate).toLocaleDateString('en-GB') : 'Unknown date';
 
   // Define the prompt to send to the Gemini AI model
   const prompt = `
@@ -142,3 +142,31 @@ Here’s the user's GitHub data:
     };
   }
 }
+
+export type RoastUserInput = {
+  user: {
+    login: string;
+    name?: string | null;
+    bio?: string | null;
+    avatar_url: string;
+    public_repos: number;
+    followers: number;
+    following: number;
+    stars: number;
+    location?: string | null;
+  };
+  recentRepo: {
+    name: string;
+    html_url: string;
+    description?: string | null;
+    language?: string | null;
+    topics: string[];
+    commitMessages: string[];
+    readmePreview: string;
+  } | null;
+  lastPushDate: Date | null;
+  devTraits: {
+    commitEnergy: number; // 0–100
+    starPower: number;    // 0–100
+  };
+};

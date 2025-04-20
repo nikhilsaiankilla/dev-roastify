@@ -3,7 +3,7 @@
 import React, { FormEvent, useRef, useState } from "react";
 import { roastUserAction } from "@/actions/action";
 import Image from "next/image";
-import { Flame, Star, Zap } from "lucide-react";
+import { CoffeeIcon, Copy, Download, Flame, Star, TwitterIcon, Zap } from "lucide-react";
 
 const badgeColors = [
   "bg-red-500/70",
@@ -20,30 +20,37 @@ const badgeColors = [
 
 import * as htmlToImage from 'html-to-image';
 
+interface RoastData {
+  cardId: string;
+  user: {
+    login: string;
+    name: string;
+    bio: string;
+    avatar_url: string;
+    public_repos: string;
+    followers: string;
+    following: string;
+    stars: number;
+    location: string;
+  };
+  roast?: {
+    intro?: string;
+    roast?: string;
+    spiceLabel?: string;
+    roastTagline?: string;
+    spiceLevel: number;
+    badges?: string[];
+  };
+  devTraits: {
+    commitEnergy: number;
+    starPower: number;
+  };
+}
+
 const HomePage = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const roastCard = useRef<HTMLDivElement>(null);
-
-  interface RoastData {
-    cardId: string,
-    user: {
-      login: any;
-      name: any;
-      bio: any;
-      avatar_url: any;
-      public_repos: any;
-      followers: any;
-      following: any;
-      stars: number;
-      location: any;
-    };
-    roast: { intro?: string; roast?: string; spiceLabel?: string; roastTagline?: string; spiceLevel: number, badges?: string[] } | undefined;
-    devTraits: {
-      commitEnergy: number;
-      starPower: number;
-    };
-  }
 
   const [data, setData] = useState<RoastData | null>(null);
 
@@ -114,7 +121,7 @@ const HomePage = () => {
           </h1>
         </span>
         <p className="text-sm md:text-lg text-gray-300 mt-5">
-          Drop your GitHub username and get a roast card that'll burn brighter than your last deploy failure.
+          Drop your GitHub username and get a roast card that&apos;ll burn brighter than your last deploy failure.
         </p>
       </section>
 
@@ -324,17 +331,57 @@ const HomePage = () => {
 
               </div>
 
-              <button onClick={() => {
-                setTimeout(() => {
-                  htmlToPng();
-                }, 500)
-              }} className="cursor-pointer">Download card</button>
+              <div className="w-full max-w-md mx-auto flex flex-wrap items-center gap-2 mt-3">
 
-              <button onClick={() => {
-                setTimeout(() => {
-                  copyCardToClipboard();
-                }, 500)
-              }} className="cursor-pointer">Copy Image</button>
+                <div className="w-full flex items-center justify-between gap-2">
+                  <button
+                    onClick={() => {
+                      setTimeout(() => {
+                        htmlToPng();
+                      }, 500);
+                    }}
+                    className="w-full whitespace-nowrap cursor-pointer flex items-center justify-center gap-2 text-sm font-medium text-white bg-[#FF5733] hover:bg-[#FFB300] transition-all duration-300 ease-in-out rounded-lg shadow-lg hover:scale-105 active:scale-95 px-6 py-4"
+                  >
+                    <Download size={16} />
+                    Download card
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setTimeout(() => {
+                        copyCardToClipboard();
+                      }, 500);
+                    }}
+                    className="w-full whitespace-nowrap cursor-pointer flex items-center justify-center gap-2 text-sm font-medium text-white bg-[#FF5733] hover:bg-[#FFB300] transition-all duration-300 ease-in-out rounded-lg shadow-lg hover:scale-105 active:scale-95 px-6 py-4"
+                  >
+                    <Copy size={16} /> Copy Image
+                  </button>
+                </div>
+
+                <div className="w-full flex items-center justify-between gap-2">
+                  <button
+                    onClick={() => {
+                      setTimeout(() => {
+                        copyCardToClipboard();
+                      }, 500);
+                    }}
+                    className="w-full whitespace-nowrap cursor-pointer flex items-center justify-center gap-2 text-sm font-medium text-white bg-[#FF5733] hover:bg-[#FFB300] transition-all duration-300 ease-in-out rounded-lg shadow-lg hover:scale-105 active:scale-95 px-6 py-4"
+                  >
+                    <TwitterIcon size={16} /> Share on Twitter
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setTimeout(() => {
+                        copyCardToClipboard();
+                      }, 500);
+                    }}
+                    className="w-full whitespace-nowrap cursor-pointer flex items-center justify-center gap-2 text-sm font-medium text-white hover:bg-[#FF5733] bg-[#FFB300] transition-all duration-300 ease-in-out rounded-lg shadow-lg hover:scale-105 active:scale-95 px-6 py-4"
+                  >
+                    <CoffeeIcon size={16} /> Buy Me Coffee
+                  </button>
+                </div>
+              </div>
             </>
           )
         )}
