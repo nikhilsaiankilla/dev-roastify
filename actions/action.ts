@@ -12,6 +12,10 @@ const GITHUB_HEADERS = {
     "User-Agent": "DevRostify-Agent"
 };
 
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
+
 export const roastUserAction = async (formData: FormData) => {
     try {
         const parsed = formSchema.safeParse({
@@ -156,11 +160,24 @@ export const roastUserAction = async (formData: FormData) => {
             };
         }
 
+        // Try to insert a roast card (without storing GitHub ID)
+        let cardIdFormatted = '00000'; // Default fallback
+        try {
+            const roastCard = await prisma.roastCard.create({
+                data: {}, // Prisma will handle createdAt and updatedAt automatically
+            });
+
+            cardIdFormatted = String(roastCard.id).padStart(5, '0');
+        } catch (error) {
+            console.error("Error tracking roast card generation:", error);
+        }
+
         return {
             success: true,
             status: 200,
             message: "GitHub data fetched",
             data: {
+                cardId: cardIdFormatted,
                 user: {
                     login: user.login,
                     name: user.name,

@@ -1,10 +1,9 @@
 "use client";
 
-import React, { FormEvent, useState } from "react";
+import React, { FormEvent, useRef, useState } from "react";
 import { roastUserAction } from "@/actions/action";
 import Image from "next/image";
 import { Flame, Star, Zap } from "lucide-react";
-import html2canvas from "html2canvas";
 
 const badgeColors = [
   "bg-red-500/70",
@@ -19,9 +18,15 @@ const badgeColors = [
   "bg-rose-500/70"
 ];
 
+import * as htmlToImage from 'html-to-image';
+
 const HomePage = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const roastCard = useRef<HTMLDivElement>(null);
+
   interface RoastData {
+    cardId: string,
     user: {
       login: any;
       name: any;
@@ -63,25 +68,40 @@ const HomePage = () => {
   };
 
   const htmlToPng = async () => {
-    const node = document.getElementById('roast-card');
-
-    console.log(node);
-    if (node) {
-      const browser = await puppeteer.launch();
-      const page = await browser.newPage();
-      await page.goto(url);
-
-      await page.screenshot({
-        path: 'page-screenshot.jpg',
-        type: 'jpeg',
-        quality: 90, // Set image quality
-      });
-
-      await browser.close();
+    if (roastCard.current) {
+      try {
+        const dataUrl = await htmlToImage.toJpeg(roastCard.current, { quality: 0.95 });
+        const link = document.createElement('a');
+        link.download = 'dev-roast-card.jpeg';
+        link.href = dataUrl;
+        link.click();
+      } catch (error) {
+        console.error('Failed to generate image', error);
+      }
     } else {
-      console.error("Element with id 'roast-card' not found.");
+      console.error('Card not found');
     }
-  }
+  };
+
+  const copyCardToClipboard = async () => {
+    const node = roastCard.current;
+
+    if (!node) return;
+
+    const blob = await htmlToImage.toBlob(node);
+    if (blob) {
+      try {
+        await navigator.clipboard.write([
+          new ClipboardItem({
+            "image/png": blob,
+          }),
+        ]);
+        alert("Roast card copied to clipboard!");
+      } catch (err) {
+        console.error("Failed to copy:", err);
+      }
+    }
+  };
 
   return (
     <main className="flex flex-col items-center justify-start p-3 md:px-6 py-12 bg-background text-foreground">
@@ -117,148 +137,204 @@ const HomePage = () => {
           placeholder="Enter your GitHub username"
           className="w-full text-sm placeholder:text-sm bg-[#333333] text-white px-6 py-4 rounded-full focus:outline-none focus:ring-2 focus:ring-primary transition-all"
         />
+
         <button
           type="submit"
-          className="w-full md:w-fit whitespace-nowrap cursor-pointer flex items-center justify-center gap-2 text-sm font-medium text-white bg-[#FF5733] hover:bg-[#FFB300] transition-all duration-200 ease-in-out rounded-full shadow-lg hover:scale-105 active:scale-95 px-6 py-4"
+          className="w-full md:w-fit whitespace-nowrap cursor-pointer flex items-center justify-center gap-2 text-sm font-medium text-white bg-[#FF5733] hover:bg-[#FFB300] transition-all duration-300 ease-in-out rounded-full shadow-lg hover:scale-105 active:scale-95 px-6 py-4"
         >
-          {isLoading ? <><Image src='/bread.png' alt="logo" width={25} height={25} className="animate-spin-slow" /> roasting...</> : "Get Roast"}
+          {isLoading ? (
+            <>
+              <svg
+                className="w-5 h-5 animate-spin text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 1 0 16 0 8 8 0 0 0-16 0Z"
+                />
+              </svg>
+              <span>Roasting...</span>
+            </>
+          ) : (
+            "Get Roast"
+          )}
         </button>
       </form>
 
 
       <section className="w-full mt-10">
         {isLoading ? (
-          <div className="mx-auto">
-            <Image src='/bread.png' alt="logo" width={300} height={300} className="mx-auto animate-pulse" />
-            <h1 className="text-center mt-5">roasting your GitHub</h1>
+          <div className="mx-auto text-center">
+            {/* Bouncing Logo */}
+            <Image
+              src="/bread.png"
+              alt="logo"
+              width={300}
+              height={300}
+              className="mx-auto animate-bounce"
+            />
+
+            {/* Animated Text */}
+            <h1 className="text-center mt-5 text-xl font-semibold text-gray-700 animate-fade-in">
+              Roasting your GitHub...
+            </h1>
+
+            {/* Progress Bar */}
+            <div className="mt-4">
+              <div className="w-full bg-gray-200 rounded-full h-2.5">
+                <div className="bg-[#FF5733] h-2.5 rounded-full animate-pulse" style={{ width: '80%' }} />
+              </div>
+            </div>
           </div>
+
         ) : (
           data && (
             <>
-              <h3 className="text-xl font-semibold text-center text-white">Your Roast</h3>
+              <h3 className="text-xl font-semibold text-center text-white mt-5 opacity-0 animate-fadeIn animate-delay-500 underline hover:underline hover:text-[#FF5733] transition-all duration-300 ease-in-out">
+                Your Roast
+              </h3>
 
+              <div className="w-full max-w-md mx-auto">
 
-              <div className="w-full max-w-md mx-auto rounded-3xl p-3 sm:p-6
-                              bg-gradient-to-br from-[#2c1a17] via-[#3b1d1a] to-[#1c1c1c] 
-                              shadow-[0_4px_60px_rgba(255,87,34,0.2)] 
-                              border border-[#ff5722]/20 
-                              backdrop-blur-xl 
-                              space-y-6"
-                id="roast-card"
-              >
-
-                {/* Header */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Image src="/bread.png" alt="logo" width={28} height={28} />
-                    <h1 className="text-lg font-bold tracking-wide text-[#f97316]">DevRoastify</h1>
-                  </div>
-                  <div className="bg-[#dc2626]/20 px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1 border border-[#dc2626]/30">
-                    <Flame className="w-4 h-4 text-[#facc15]" />
-                    {data?.roast?.spiceLabel || "Mild"}
-                  </div>
-                </div>
-
-                <div className="w-full bg-white/5 backdrop-blur-sm rounded-2xl p-2 shadow-inner border border-white/10">
-                  <Image
-                    src={data?.user?.avatar_url || "/placeholder.png"}
-                    alt="profile"
-                    width={170}
-                    height={170}
-                    className="object-cover mx-auto rounded-full border-4 border-[#f97316]"
-                  />
-
-                  <h2 className="text-xl text-center font-extrabold text-white mt-2">@{data?.user?.login}</h2>
-                  <div className="flex justify-center gap-8 mt-1">
-                    <div className="flex flex-col items-center">
-                      <p className="text-xs text-gray-400">Followers</p>
-                      <p className="text-xl font-bold text-[#facc15]">{data?.user?.followers}</p>
+                <div className="rounded-2xl p-3 
+                      bg-gradient-to-br from-[#2c1a17] via-[#3b1d1a] to-[#1c1c1c] 
+                      shadow-[0_4px_40px_rgba(255,87,34,0.2)] 
+                      border border-[#ff5722]/20 
+                      backdrop-blur-xl 
+                      space-y-3"
+                  ref={roastCard}
+                >
+                  {/* Header */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Image src="/bread.png" alt="logo" width={24} height={24} />
+                      <h1 className="text-base font-bold tracking-wide text-[#f97316]">DevRoastify</h1>
                     </div>
-                    <div className="flex flex-col items-center">
-                      <p className="text-xs text-gray-400">Following</p>
-                      <p className="text-xl font-bold text-[#facc15]">{data?.user?.following}</p>
+                    <div className="bg-[#dc2626]/20 px-2 py-0.5 rounded-full text-xs font-medium flex items-center gap-1 border border-[#dc2626]/30">
+                      <Flame className="w-4 h-4 text-[#facc15]" />
+                      {data?.roast?.spiceLabel || "Mild"}
                     </div>
                   </div>
-                </div>
 
-                {/* Roast Section */}
-                <div className="text-center px-2">
-                  <p className="text-base font-semibold italic text-[#f97316] mb-1">{data?.roast?.intro}</p>
-                  <p className="text-sm text-gray-300">{data?.roast?.roast}</p>
-                  <p className="mt-3 text-md font-medium italic text-[#f97316]">{data?.roast?.roastTagline}</p>
-                </div>
+                  {/* Profile */}
+                  <div className="bg-white/5 rounded-xl p-2 shadow-inner border border-white/10">
+                    <Image
+                      src={data?.user?.avatar_url || "/placeholder.png"}
+                      alt="profile"
+                      width={130}
+                      height={130}
+                      className="object-cover mx-auto rounded-full border-4 border-[#f97316]"
+                    />
+                    <h2 className="text-lg text-center font-extrabold text-white mt-1">@{data?.user?.login}</h2>
+                    <div className="flex justify-center gap-6 mt-1">
+                      <div className="text-center">
+                        <p className="text-xs text-gray-400">Followers</p>
+                        <p className="text-lg font-bold text-[#facc15]">{data?.user?.followers}</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-xs text-gray-400">Following</p>
+                        <p className="text-lg font-bold text-[#facc15]">{data?.user?.following}</p>
+                      </div>
+                    </div>
+                  </div>
 
-                {/* Divider */}
-                <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+                  {/* Roast */}
+                  <div className="text-center px-1">
+                    <p className="text-sm font-semibold italic text-[#f97316]">{data?.roast?.intro}</p>
+                    <p className="text-xs text-gray-300 mt-1">{data?.roast?.roast}</p>
+                    <p className="mt-2 text-sm italic text-[#f97316] font-medium">{data?.roast?.roastTagline}</p>
+                  </div>
 
-                {/* Stats & Spice */}
-                <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-2 bg-white/5 p-4 rounded-2xl shadow-inner border border-white/10">
+                  {/* Divider */}
+                  <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 
-                  {/* Dev Traits */}
-                  <div className="space-y-3 text-sm text-white">
-                    <div className="w-full flex flex-col gap-2">
-
-                      <div className="flex items-center gap-3 p-2 rounded-lg border border-[#facc15] bg-[#facc151b]">
-                        <div className="p-2 bg-[#facc15]/20 rounded-full">
-                          <Zap className="w-5 h-5 text-[#facc15]" />
+                  {/* Stats */}
+                  <div className="grid grid-cols-2 gap-2 bg-white/5 p-2 rounded-xl shadow-inner border border-white/10">
+                    <div className="flex flex-col gap-2">
+                      {/* Commit Energy */}
+                      <div className="flex items-center gap-2 p-2 rounded-md border border-[#facc15] bg-[#facc151b]">
+                        <div className="p-1 bg-[#facc15]/20 rounded-full">
+                          <Zap className="w-4 h-4 text-[#facc15]" />
                         </div>
                         <div>
                           <p className="text-xs text-gray-400">Commit Energy</p>
-                          <p className="font-semibold">{data?.devTraits.commitEnergy}</p>
+                          <p className="text-sm font-semibold">{data?.devTraits.commitEnergy}</p>
                         </div>
                       </div>
-
-                      <div className="flex items-center gap-3 p-2 rounded-lg border border-[#facc15] bg-[#facc151b]">
-                        <div className="p-2 bg-[#facc15]/20 rounded-full">
-                          <Star className="w-5 h-5 text-[#facc15]" />
+                      {/* Star Power */}
+                      <div className="flex items-center gap-2 p-2 rounded-md border border-[#facc15] bg-[#facc151b]">
+                        <div className="p-1 bg-[#facc15]/20 rounded-full">
+                          <Star className="w-4 h-4 text-[#facc15]" />
                         </div>
                         <div>
                           <p className="text-xs text-gray-400">Star Power</p>
-                          <p className="font-semibold">{data?.devTraits.starPower}</p>
+                          <p className="text-sm font-semibold">{data?.devTraits.starPower}</p>
                         </div>
+                      </div>
+                    </div>
+
+                    {/* Spice Level */}
+                    <div className="flex flex-col items-center justify-center px-2 py-2 rounded-md bg-gradient-to-br from-[#7f1d1d]/40 to-[#dc2626]/20 border border-[#dc2626] shadow-md">
+                      <Flame className="w-5 h-5 text-[#facc15] animate-pulse mb-0.5" />
+                      <p className="text-2xl font-bold text-[#facc15]">{data?.roast?.spiceLevel || 0}</p>
+                      <span className="text-xs text-gray-300">Spice Level</span>
+                      <div className="relative w-20 h-1.5 rounded-full bg-[#f87171]/20 mt-1">
+                        <div
+                          className="absolute top-0 left-0 h-full bg-[#dc2626] transition-all duration-300"
+                          style={{ width: `${data?.roast?.spiceLevel || 0}%` }}
+                        />
                       </div>
                     </div>
                   </div>
 
-                  {/* Spice Level Block */}
-                  <div className="flex flex-col items-center justify-center px-4 py-3 rounded-xl bg-gradient-to-br from-[#7f1d1d]/40 to-[#dc2626]/20 border border-[#dc2626] shadow-md">
-                    <Flame className="w-6 h-6 text-[#facc15] animate-pulse mb-1" />
-                    <p className="text-3xl font-bold text-[#facc15]">{data?.roast?.spiceLevel || 0}</p>
-                    <span className="text-xs text-gray-300 mb-1">Spice Level</span>
+                  {/* Divider */}
+                  <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 
-                    <div className="relative w-24 h-2 rounded-full bg-[#f87171]/20 overflow-hidden">
-                      <div
-                        className="absolute top-0 left-0 h-full bg-[#dc2626] transition-all duration-300"
-                        style={{ width: `${data?.roast?.spiceLevel || 0}%` }}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Divider */}
-                <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-
-                <div className="w-full p-2 rounded-lg border border-[#facc15] bg-[#facc151b] flex items-center justify-center flex-wrap gap-2">
-                  {
-                    data?.roast?.badges?.map((badge: string, index: number) => {
+                  {/* Badges */}
+                  <div className="w-full p-2 rounded-md border border-[#facc15] bg-[#facc151b] flex flex-wrap justify-center gap-1">
+                    {data?.roast?.badges?.map((badge: string, index: number) => {
                       const colorClass = badgeColors[index % badgeColors.length];
                       return (
-                        <span key={index} className={`p-1 px-2 rounded-md text-xs font-normal text-white ${colorClass}`}>
+                        <span key={index} className={`px-2 py-1 rounded text-xs font-normal text-white ${colorClass}`}>
                           {badge}
                         </span>
                       );
-                    })
-                  }
+                    })}
+                  </div>
+
+                  {/* Footer */}
+                  <div className="flex justify-between flex-wrap items-center text-xs text-white/70 border-t border-white/10 pt-2 px-1">
+                    <span>Card #{data?.cardId}</span>
+                    <span className="text-green-400">#GithubRoast</span>
+                    <span className="italic">@NikhilsaiAnkil1</span>
+                  </div>
                 </div>
 
-                <div className="flex justify-between flex-wrap items-center text-xs text-white/70 border-t border-white/10 pt-3 px-1">
-                  <span>Card No. #{"00000"}</span>
-                  <span className="text-green-400">#GithubRoast</span>
-                  <span className="italic">@NikhilsaiAnkil1</span>
-                </div>
               </div>
 
-              <button onClick={htmlToPng} className="cursor-pointer">Download card</button>
+              <button onClick={() => {
+                setTimeout(() => {
+                  htmlToPng();
+                }, 500)
+              }} className="cursor-pointer">Download card</button>
+
+              <button onClick={() => {
+                setTimeout(() => {
+                  copyCardToClipboard();
+                }, 500)
+              }} className="cursor-pointer">Copy Image</button>
             </>
           )
         )}
