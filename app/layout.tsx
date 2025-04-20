@@ -3,7 +3,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Head from "next/head"; // Importing Head for dynamic title management
-import Image from "next/image"; // For optimized image handling
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
