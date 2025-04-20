@@ -49,6 +49,7 @@ interface RoastData {
 
 const HomePage = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [imageRendered, setImageRendered] = useState<boolean>(false);
 
   const roastCard = useRef<HTMLDivElement>(null);
 
@@ -63,11 +64,13 @@ const HomePage = () => {
       const res = await roastUserAction(formData);
 
       if (!res?.success) {
-        return console.log(res);
+        return alert(res.message || 'Something went wrong!')
       }
 
       setData(res?.data)
+      setImageRendered(true);
     } catch (error) {
+      setImageRendered(false);
       console.error(error);
     } finally {
       setIsLoading(false);
@@ -77,7 +80,8 @@ const HomePage = () => {
   const htmlToPng = async () => {
     if (roastCard.current) {
       try {
-        const dataUrl = await htmlToImage.toJpeg(roastCard.current, { quality: 0.95 });
+
+        const dataUrl = await htmlToImage.toJpeg(roastCard.current, { quality: 0.9 });
         const link = document.createElement('a');
         link.download = 'dev-roast-card.jpeg';
         link.href = dataUrl;
@@ -110,8 +114,17 @@ const HomePage = () => {
     }
   };
 
+  const shareOnTwitter = () => {
+    const tweetText = encodeURIComponent(
+      "Just got absolutely grilled by DevRoastify🔥\nWanna know how spicy your GitHub is?\n Try it now: 👇\nhttps://dev-roastify.vercel.app\n\nMade by @NikhilsaiAnkil1\n#GithubRoast #DevRoastify"
+    );
+    const tweetUrl = `https://twitter.com/intent/tweet?text=${tweetText}`;
+    window.open(tweetUrl, "_blank");
+  };
+
+
   return (
-    <main className="flex flex-col items-center justify-start p-3 md:px-6 py-12 bg-background text-foreground">
+    <main className="flex flex-col items-center justify-start p-3 md:px-6 py-12 bg-background text-foreground pb-20">
       {/* Intro */}
       <section className="max-w-2xl text-center my-10">
         <span className='flex items-center justify-center gap-1'>
@@ -142,7 +155,7 @@ const HomePage = () => {
           type="text"
           name="username"
           placeholder="Enter your GitHub username"
-          className="w-full text-sm placeholder:text-sm bg-[#333333] text-white px-6 py-4 rounded-full focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+          className="w-full text-sm placeholder:text-sm bg-[#333333] text-white px-6 py-4 rounded-full focus:outline-none focus:ring-2 focus:ring-[#FF5733] transition-all"
         />
 
         <button
@@ -180,211 +193,164 @@ const HomePage = () => {
         </button>
       </form>
 
+      {
+        data && imageRendered
+          ?
+          <div className="grid grid-cols-2 gap-4 w-full max-w-md mt-10">
+            <button
+              onClick={() => setTimeout(() => htmlToPng(), 500)}
+              className="flex items-center justify-center gap-2 text-sm font-medium text-white bg-[#FF5733] hover:bg-[#FFB300] transition-all duration-300 rounded-lg shadow-lg px-4 py-3 cursor-pointer"
+            >
+              <Download size={16} /> Download Card
+            </button>
+            <button
+              onClick={() => setTimeout(() => copyCardToClipboard(), 500)}
+              className="flex items-center justify-center gap-2 text-sm font-medium text-white bg-[#FF5733] hover:bg-[#FFB300] transition-all duration-300 rounded-lg shadow-lg  px-4 py-3 cursor-pointer"
+            >
+              <Copy size={16} /> Copy Image
+            </button>
+            <button
+              onClick={shareOnTwitter}
+              className="flex items-center justify-center gap-2 text-sm font-medium text-white bg-[#FF5733] hover:bg-[#FFB300] transition-all duration-300 rounded-lg shadow-lg  px-4 py-3 col-span-2 cursor-pointer"
+            > 
+              <TwitterIcon size={16} /> Share on Twitter
+            </button>
+            <button
+              onClick={() => window.open("https://www.buymeacoffee.com/nikhilsaiankilla", "_blank")}
+              className="flex items-center justify-center gap-2 text-sm font-medium text-[#FFB300] border-[#FFB300] border-2 hover:bg-[#FFB300] hover:text-white transition-all duration-300 rounded-lg shadow-lg  px-4 py-3 col-span-2 cursor-pointer"
+            >
+              <CoffeeIcon size={16} /> Buy Me Coffee
+            </button>
+          </div>
+          :
+          <></>
+      }
 
       <section className="w-full mt-10">
-        {isLoading ? (
-          <div className="mx-auto text-center">
-            {/* Bouncing Logo */}
-            <Image
-              src="/bread.png"
-              alt="logo"
-              width={300}
-              height={300}
-              className="mx-auto animate-bounce"
-            />
-
-            {/* Animated Text */}
-            <h1 className="text-center mt-5 text-xl font-semibold text-gray-700 animate-fade-in">
-              Roasting your GitHub...
-            </h1>
-
-            {/* Progress Bar */}
-            <div className="mt-4">
-              <div className="w-full bg-gray-200 rounded-full h-2.5">
-                <div className="bg-[#FF5733] h-2.5 rounded-full animate-pulse" style={{ width: '80%' }} />
+        <div className="w-full max-w-sm mx-auto mt-5">
+          {isLoading ? (
+            <div className="w-full animate-pulse space-y-4 rounded-xl bg-muted p-4 shadow">
+              <div className="h-6 w-1/3 rounded bg-gray-300" />
+              <div className="h-4 w-2/3 rounded bg-gray-300" />
+              <div className="h-4 w-full rounded bg-gray-300" />
+              <div className="h-4 w-5/6 rounded bg-gray-300" />
+              <div className="mt-4 flex items-center space-x-4">
+                <div className="h-10 w-10 rounded-full bg-gray-300" />
+                <div className="h-4 w-1/3 rounded bg-gray-300" />
               </div>
             </div>
-          </div>
-
-        ) : (
-          data && (
-            <>
-              <h3 className="text-xl font-semibold text-center text-white mt-5 opacity-0 animate-fadeIn animate-delay-500 underline hover:underline hover:text-[#FF5733] transition-all duration-300 ease-in-out">
-                Your Roast
-              </h3>
-
-              <div className="w-full max-w-md mx-auto">
-
-                <div className="rounded-2xl p-3 
-                      bg-gradient-to-br from-[#2c1a17] via-[#3b1d1a] to-[#1c1c1c] 
-                      shadow-[0_4px_40px_rgba(255,87,34,0.2)] 
-                      border border-[#ff5722]/20 
-                      backdrop-blur-xl 
-                      space-y-3"
-                  ref={roastCard}
-                >
-                  {/* Header */}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Image src="/bread.png" alt="logo" width={24} height={24} />
-                      <h1 className="text-base font-bold tracking-wide text-[#f97316]">DevRoastify</h1>
-                    </div>
-                    <div className="bg-[#dc2626]/20 px-2 py-0.5 rounded-full text-xs font-medium flex items-center gap-1 border border-[#dc2626]/30">
-                      <Flame className="w-4 h-4 text-[#facc15]" />
-                      {data?.roast?.spiceLabel || "Mild"}
-                    </div>
-                  </div>
-
-                  {/* Profile */}
-                  <div className="bg-white/5 rounded-xl p-2 shadow-inner border border-white/10">
-                    <Image
-                      src={data?.user?.avatar_url || "/placeholder.png"}
-                      alt="profile"
-                      width={130}
-                      height={130}
-                      className="object-cover mx-auto rounded-full border-4 border-[#f97316]"
-                    />
-                    <h2 className="text-lg text-center font-extrabold text-white mt-1">@{data?.user?.login}</h2>
-                    <div className="flex justify-center gap-6 mt-1">
-                      <div className="text-center">
-                        <p className="text-xs text-gray-400">Followers</p>
-                        <p className="text-lg font-bold text-[#facc15]">{data?.user?.followers}</p>
+          ) : (
+            data && (
+              <div className="w-full flex flex-col gap-6 items-center">
+                <div className="w-[500px] h-[550px]">
+                  <div
+                    className="relative rounded-2xl p-4 bg-gradient-to-br from-[#2c1a17] via-[#3b1d1a] to-[#1c1c1c] shadow-[0_4px_40px_rgba(255,87,34,0.2)] border border-[#ff5722]/20 backdrop-blur-xl space-y-4"
+                  >
+                    {/* Header */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Image src="/bread.png" alt="logo" width={30} height={30} />
+                        <h1 className="text-base font-bold tracking-wide text-[#f97316]">DevRoastify</h1>
                       </div>
-                      <div className="text-center">
-                        <p className="text-xs text-gray-400">Following</p>
-                        <p className="text-lg font-bold text-[#facc15]">{data?.user?.following}</p>
+                      <div className="flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full border border-[#dc2626]/30 bg-[#dc2626]/20">
+                        <Flame className="w-4 h-4 text-[#facc15]" />
+                        {data?.roast?.spiceLabel || "Mild"}
                       </div>
                     </div>
-                  </div>
 
-                  {/* Roast */}
-                  <div className="text-center px-1">
-                    <p className="text-sm font-semibold italic text-[#f97316]">{data?.roast?.intro}</p>
-                    <p className="text-xs text-gray-300 mt-1">{data?.roast?.roast}</p>
-                    <p className="mt-2 text-sm italic text-[#f97316] font-medium">{data?.roast?.roastTagline}</p>
-                  </div>
-
-                  {/* Divider */}
-                  <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-
-                  {/* Stats */}
-                  <div className="grid grid-cols-2 gap-2 bg-white/5 p-2 rounded-xl shadow-inner border border-white/10">
-                    <div className="flex flex-col gap-2">
-                      {/* Commit Energy */}
-                      <div className="flex items-center gap-2 p-2 rounded-md border border-[#facc15] bg-[#facc151b]">
-                        <div className="p-1 bg-[#facc15]/20 rounded-full">
-                          <Zap className="w-4 h-4 text-[#facc15]" />
-                        </div>
-                        <div>
-                          <p className="text-xs text-gray-400">Commit Energy</p>
-                          <p className="text-sm font-semibold">{data?.devTraits.commitEnergy}</p>
-                        </div>
-                      </div>
-                      {/* Star Power */}
-                      <div className="flex items-center gap-2 p-2 rounded-md border border-[#facc15] bg-[#facc151b]">
-                        <div className="p-1 bg-[#facc15]/20 rounded-full">
-                          <Star className="w-4 h-4 text-[#facc15]" />
-                        </div>
-                        <div>
-                          <p className="text-xs text-gray-400">Star Power</p>
-                          <p className="text-sm font-semibold">{data?.devTraits.starPower}</p>
+                    {/* Profile */}
+                    <div className="bg-white/5 rounded-xl p-3 shadow-inner border border-white/10 grid grid-cols-2">
+                      <Image
+                        src={data?.user?.avatar_url || "/placeholder.png"}
+                        alt="profile"
+                        width={150}
+                        height={150}
+                        className="mx-auto rounded-full border-4 border-[#f97316] object-cover"
+                      />
+                      <div className="flex items-center justify-center flex-col">
+                        <h2 className="text-lg font-extrabold text-white mt-2">@{data?.user?.login}</h2>
+                        <div className="flex justify-center gap-6 mt-2">
+                          <div className="text-center">
+                            <p className="text-xs text-gray-400">Followers</p>
+                            <p className="text-2xl font-bold text-[#facc15]">{data?.user?.followers}</p>
+                          </div>
+                          <div className="text-center">
+                            <p className="text-xs text-gray-400">Following</p>
+                            <p className="text-2xl font-bold text-[#facc15]">{data?.user?.following}</p>
+                          </div>
                         </div>
                       </div>
                     </div>
 
-                    {/* Spice Level */}
-                    <div className="flex flex-col items-center justify-center px-2 py-2 rounded-md bg-gradient-to-br from-[#7f1d1d]/40 to-[#dc2626]/20 border border-[#dc2626] shadow-md">
-                      <Flame className="w-5 h-5 text-[#facc15] animate-pulse mb-0.5" />
-                      <p className="text-2xl font-bold text-[#facc15]">{data?.roast?.spiceLevel || 0}</p>
-                      <span className="text-xs text-gray-300">Spice Level</span>
-                      <div className="relative w-20 h-1.5 rounded-full bg-[#f87171]/20 mt-1">
-                        <div
-                          className="absolute top-0 left-0 h-full bg-[#dc2626] transition-all duration-300"
-                          style={{ width: `${data?.roast?.spiceLevel || 0}%` }}
-                        />
+                    {/* Roast Content */}
+                    <div className="text-center space-y-1 px-2">
+                      <p className="text-sm font-semibold italic text-[#f97316]">{data?.roast?.intro}</p>
+                      <p className="text-xs text-gray-300">{data?.roast?.roast}</p>
+                      <p className="text-sm italic text-[#f97316] font-medium mt-2">{data?.roast?.roastTagline}</p>
+                    </div>
+
+                    <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+
+                    {/* Stats */}
+                    <div className="grid grid-cols-2 gap-3 bg-white/5 p-3 rounded-xl shadow-inner border border-white/10">
+                      <div className="space-y-2">
+                        {["Commit Energy", "Star Power"].map((label, idx) => {
+                          const Icon = idx === 0 ? Zap : Star;
+                          const value = idx === 0 ? data?.devTraits.commitEnergy : data?.devTraits.starPower;
+                          return (
+                            <div key={label} className="flex items-center gap-2 p-2 rounded-md border border-[#facc15] bg-[#facc151b]">
+                              <div className="p-1 bg-[#facc15]/20 rounded-full">
+                                <Icon className="w-4 h-4 text-[#facc15]" />
+                              </div>
+                              <div>
+                                <p className="text-xs text-gray-400">{label}</p>
+                                <p className="text-sm font-semibold">{value}</p>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                      <div className="flex flex-col items-center justify-center bg-gradient-to-br from-[#7f1d1d]/40 to-[#dc2626]/20 p-2 rounded-md border border-[#dc2626] shadow-md">
+                        <Flame className="w-5 h-5 text-[#facc15] animate-pulse mb-1" />
+                        <p className="text-2xl font-bold text-[#facc15]">{data?.roast?.spiceLevel || 0}</p>
+                        <span className="text-xs text-gray-300">Spice Level</span>
+                        <div className="relative w-20 h-1.5 rounded-full bg-[#f87171]/20 mt-1">
+                          <div
+                            className="absolute top-0 left-0 h-full bg-[#dc2626] transition-all duration-300"
+                            style={{ width: `${data?.roast?.spiceLevel || 0}%` }}
+                          />
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Divider */}
-                  <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+                    <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 
-                  {/* Badges */}
-                  <div className="w-full p-2 rounded-md border border-[#facc15] bg-[#facc151b] flex flex-wrap justify-center gap-1">
-                    {data?.roast?.badges?.map((badge: string, index: number) => {
-                      const colorClass = badgeColors[index % badgeColors.length];
-                      return (
-                        <span key={index} className={`px-2 py-1 rounded text-xs font-normal text-white ${colorClass}`}>
+                    {/* Badges */}
+                    <div className="flex flex-wrap justify-center gap-2 p-2 border border-[#facc15] bg-[#facc151b] rounded-md">
+                      {data?.roast?.badges?.map((badge, index) => (
+                        <span
+                          key={index}
+                          className={`px-2 py-1 rounded text-xs font-normal text-white ${badgeColors[index % badgeColors.length]}`}
+                        >
                           {badge}
                         </span>
-                      );
-                    })}
+                      ))}
+                    </div>
+
+                    {/* Footer */}
+                    <div className="flex justify-between flex-wrap items-center text-xs text-white/70 border-t border-white/10 pt-2">
+                      <span>Card #{data?.cardId}</span>
+                      <span className="text-green-400">#GithubRoast</span>
+                      <span className="italic">@NikhilsaiAnkil1</span>
+                    </div>
                   </div>
-
-                  {/* Footer */}
-                  <div className="flex justify-between flex-wrap items-center text-xs text-white/70 border-t border-white/10 pt-2 px-1">
-                    <span>Card #{data?.cardId}</span>
-                    <span className="text-green-400">#GithubRoast</span>
-                    <span className="italic">@NikhilsaiAnkil1</span>
-                  </div>
-                </div>
-
-              </div>
-
-              <div className="w-full max-w-md mx-auto flex flex-wrap items-center gap-2 mt-3">
-
-                <div className="w-full flex items-center justify-between gap-2">
-                  <button
-                    onClick={() => {
-                      setTimeout(() => {
-                        htmlToPng();
-                      }, 500);
-                    }}
-                    className="w-full whitespace-nowrap cursor-pointer flex items-center justify-center gap-2 text-sm font-medium text-white bg-[#FF5733] hover:bg-[#FFB300] transition-all duration-300 ease-in-out rounded-lg shadow-lg hover:scale-105 active:scale-95 px-6 py-4"
-                  >
-                    <Download size={16} />
-                    Download card
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      setTimeout(() => {
-                        copyCardToClipboard();
-                      }, 500);
-                    }}
-                    className="w-full whitespace-nowrap cursor-pointer flex items-center justify-center gap-2 text-sm font-medium text-white bg-[#FF5733] hover:bg-[#FFB300] transition-all duration-300 ease-in-out rounded-lg shadow-lg hover:scale-105 active:scale-95 px-6 py-4"
-                  >
-                    <Copy size={16} /> Copy Image
-                  </button>
-                </div>
-
-                <div className="w-full flex items-center justify-between gap-2">
-                  <button
-                    onClick={() => {
-                      setTimeout(() => {
-                        copyCardToClipboard();
-                      }, 500);
-                    }}
-                    className="w-full whitespace-nowrap cursor-pointer flex items-center justify-center gap-2 text-sm font-medium text-white bg-[#FF5733] hover:bg-[#FFB300] transition-all duration-300 ease-in-out rounded-lg shadow-lg hover:scale-105 active:scale-95 px-6 py-4"
-                  >
-                    <TwitterIcon size={16} /> Share on Twitter
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      setTimeout(() => {
-                        copyCardToClipboard();
-                      }, 500);
-                    }}
-                    className="w-full whitespace-nowrap cursor-pointer flex items-center justify-center gap-2 text-sm font-medium text-white hover:bg-[#FF5733] bg-[#FFB300] transition-all duration-300 ease-in-out rounded-lg shadow-lg hover:scale-105 active:scale-95 px-6 py-4"
-                  >
-                    <CoffeeIcon size={16} /> Buy Me Coffee
-                  </button>
                 </div>
               </div>
-            </>
-          )
-        )}
+            )
+          )}
+
+
+        </div>
       </section>
 
     </main>
@@ -392,3 +358,7 @@ const HomePage = () => {
 };
 
 export default HomePage;
+
+
+
+

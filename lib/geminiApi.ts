@@ -1,6 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: "AIzaSyAl4xo95gXBz7uqKIoJHuujBPxbSZzmpGw" });
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 export async function geminiRoastUser(data: RoastUserInput) {
   const { user, recentRepo, lastPushDate } = data;
