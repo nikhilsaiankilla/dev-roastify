@@ -198,13 +198,13 @@ const HomePage = () => {
           ?
           <div className="grid grid-cols-2 gap-4 w-full max-w-md mt-10">
             <button
-              onClick={() => setTimeout(() => htmlToPng(), 500)}
+              onClick={() => setTimeout(() => htmlToPng(), 1000)}
               className="flex items-center justify-center gap-2 text-sm font-medium text-white bg-[#FF5733] hover:bg-[#FFB300] transition-all duration-300 rounded-lg shadow-lg px-4 py-3 cursor-pointer"
             >
               <Download size={16} /> Download Card
             </button>
             <button
-              onClick={() => setTimeout(() => copyCardToClipboard(), 500)}
+              onClick={() => setTimeout(() => copyCardToClipboard(), 1000)}
               className="flex items-center justify-center gap-2 text-sm font-medium text-white bg-[#FF5733] hover:bg-[#FFB300] transition-all duration-300 rounded-lg shadow-lg  px-4 py-3 cursor-pointer"
             >
               <Copy size={16} /> Copy Image
@@ -212,7 +212,7 @@ const HomePage = () => {
             <button
               onClick={shareOnTwitter}
               className="flex items-center justify-center gap-2 text-sm font-medium text-white bg-[#FF5733] hover:bg-[#FFB300] transition-all duration-300 rounded-lg shadow-lg  px-4 py-3 col-span-2 cursor-pointer"
-            > 
+            >
               <TwitterIcon size={16} /> Share on Twitter
             </button>
             <button
@@ -244,6 +244,7 @@ const HomePage = () => {
               <div className="w-full flex flex-col gap-6 items-center">
                 <div className="w-[500px] h-[550px]">
                   <div
+                    ref={roastCard}
                     className="relative rounded-2xl p-4 bg-gradient-to-br from-[#2c1a17] via-[#3b1d1a] to-[#1c1c1c] shadow-[0_4px_40px_rgba(255,87,34,0.2)] border border-[#ff5722]/20 backdrop-blur-xl space-y-4"
                   >
                     {/* Header */}
