@@ -141,8 +141,8 @@ const HomePage = () => {
       {/* Privacy Note */}
       <section className="max-w-md text-center text-sm text-gray-400 mb-8">
         <p>
-          We only store your GitHub username and the roast card — nothing else. No stalky analytics, no creepy data mining. Just roasts, pure and spicy.
-        </p>
+  Relax, we&apos;re not spying on you. No shady trackers, no data hoarding—just brutally honest roasts served hot and unforgiving. Your secrets are safe (but your code? Not so much).
+</p>
       </section>
 
       {/* Input + Roast Display */}
