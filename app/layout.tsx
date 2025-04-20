@@ -4,6 +4,8 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Head from "next/head"; // Importing Head for dynamic title management
 
+import { Analytics } from "@vercel/analytics/react"
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -109,6 +111,7 @@ export default function RootLayout({
       >
         <Navbar />
         {children}
+        <Analytics />
       </body>
     </html>
   );
