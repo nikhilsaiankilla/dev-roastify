@@ -4,7 +4,7 @@ import { CoffeeIcon } from "lucide-react";
 export default function BuyMeCoffeeButton() {
   return (
     <a
-      href="https://www.buymeacoffee.com/yourusername"
+      href="https://www.buymeacoffee.com/nikhilsaiankilla"
       target="_blank"
       rel="noopener noreferrer"
       className="fixed bottom-4 right-4 flex items-center bg-yellow-400 text-gray-900 font-semibold text-sm md:text-base p-3 rounded-full shadow-2xl border-2 border-transparent hover:border-yellow-400 transition-[border-radius,box-shadow,transform] duration-300 ease-in-out cursor-pointer group hover:shadow-xl hover:-translate-y-1 z-50 overflow-hidden"
