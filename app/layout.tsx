@@ -56,7 +56,7 @@ export const metadata: Metadata = {
     title: "DevRostify – Roast Your GitHub Like a Pro",
     description:
       "Roast your GitHub like never before. Analyze your public activity and get a personalized roast card. Funny, brutal, developer-friendly.",
-    creator: "@yourhandle", // replace with your actual Twitter handle
+    creator: "@NikhilSaiAnkil1", // replace with your actual Twitter handle
     images: ["/banner.png"],
   },
   icons: {

@@ -65,6 +65,9 @@ const HomePage = () => {
       const formData = new FormData(e.currentTarget);
       const res = await roastUserAction(formData);
 
+      console.log(res);
+      
+
       if (!res?.success) {
         setIsCardVisible(false)
         return alert(res.message || 'Something went wrong!')
