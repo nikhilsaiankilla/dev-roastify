@@ -19,6 +19,7 @@ const badgeColors = [
 ];
 
 import * as htmlToImage from 'html-to-image';
+import BuyMeCoffeeButton from "@/components/BuyMeCoffeeButton";
 
 interface RoastData {
   cardId: string;
@@ -133,6 +134,7 @@ const HomePage = () => {
 
   return (
     <main className="flex flex-col items-center justify-start p-3 md:px-6 py-12 bg-background text-foreground pb-20">
+      <BuyMeCoffeeButton/>
       {/* Intro */}
       <section className="max-w-2xl text-center my-10">
         <span className='flex items-center justify-center gap-1'>
